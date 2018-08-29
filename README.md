@@ -8,6 +8,8 @@ This is in no way a full test on all issues when upgrading a PHP project. This s
 
 Put the file in `/usr/local/bin` and make executable (`chmod +x /usr/local/bin/phpcc`)
 
+(and check the script before you execute. I just might format your drive!)
+
 ### Usage:
 ```
 phpcc {directory}
