@@ -1,0 +1,132 @@
+#!/usr/bin/env php
+<?php (PHP_SAPI !== 'cli' || isset( $_SERVER['HTTP_USER_AGENT']) ) && die( 'cli only'.PHP_EOL );
+
+$exclude = array();
+
+// slice out options
+foreach( $argv as $i => $value ) {
+    if( strpos($value, '--exclude')!==FALSE ) {
+      $a = explode('=', $value);
+      array_push($exclude, $a[1]);
+      unset( $argv[$i] );
+    }
+}
+// reindex array
+$argv = array_values($argv);
+
+$checks = array(
+  array("label"=>"5.6->7.0 incomp.", "info"=>"http://php.net/manual/en/migration70.incompatible.php", "check"=>array(
+    array("term" => "password_hash SALT deprecated", "regex" => "/password_hash/"),
+    array("term" => "imagick", "regex" => "/imagick/"),
+    array("term" => "set_exception_handler", "regex" => "/set_exception_handler/"),
+    array("term" => "foreach different operation", "regex" => "/(?<!end)foreach/"),
+    array("term" => "list different operation", "regex" => "/list([ ]*|[\t]*)\(/"),
+    array("term" => "functions inspecting arguments different operation", "regex" => "/(func_get_arg|func_get_args|debug_backtrace)/"),
+    array("term" => "call_user_method", "regex" => "/call_user_method/"),
+    array("term" => "call_user_method_array", "regex" => "/call_user_method_array/"),
+    array("term" => "ereg functions", "regex" => "/ereg/"),
+    array("term" => "mcrypt_generic_end", "regex" => "/mcrypt_generic_end/"),
+    array("term" => "mcrypt_ecb", "regex" => "/mcrypt_ecb/"),
+    array("term" => "mcrypt_cbc", "regex" => "/mcrypt_cbc/"),
+    array("term" => "mcrypt_cfb", "regex" => "/mcrypt_cfb/"),
+    array("term" => "mcrypt_ofb", "regex" => "/mcrypt_ofb/"),
+    array("term" => "set_magic_quotes_runtime", "regex" => "/set_magic_quotes_runtime/"),
+    array("term" => "magic_quotes_runtime", "regex" => "/magic_quotes_runtime/"),
+    array("term" => "set_socket_blocking", "regex" => "/set_socket_blocking/"),
+    array("term" => "mysql functions", "regex" => "/mysql_/"),
+    array("term" => "mssql functions", "regex" => "/mssql_/"),
+    array("term" => "datefmt_set_timezone_id", "regex" => "/datefmt_set_timezone_id/"),
+    array("term" => "IntlDateFormatter::setTimeZoneID", "regex" => "/IntlDateFormatter::setTimeZoneID/"),
+    array("term" => "imagepsbbox", "regex" => "/imagepsbbox/"),
+    array("term" => "imagepsencodefont", "regex" => "/imagepsencodefont/"),
+    array("term" => "imagepsextendfont", "regex" => "/imagepsextendfont/"),
+    array("term" => "imagepsfreefont", "regex" => "/imagepsfreefont/"),
+    array("term" => "imagepsloadfont", "regex" => "/imagepsloadfont/"),
+    array("term" => "imagepsslantfont", "regex" => "/imagepsslantfont/"),
+    array("term" => "imagepstext", "regex" => "/imagepstext/"),
+    array("term" => "ini directive: always_populate_raw_post_data", "regex" => "/always_populate_raw_post_data/"),
+    array("term" => "ini directive: asp_tags", "regex" => "/asp_tags/"),
+    array("term" => "ini directive: xsl.security_prefs", "regex" => "/xsl\.security_prefs/"),
+    array("term" => "trait/class/interface naming issue", "regex" => "/(trait|class|interface) (bool|int|float|string|NULL|TRUE|FALSE)/"),
+    array("term" => "trait/class/interface naming not:done", "regex" => "/(trait|class|interface) (resource|object|mixed|numeric)/"),
+    array("term" => "wrong opening tags", "regex" => "/(<\?(?!php|xml|'|\")([ ]*|[\t]*)|<script language=\"php\")/"),
+    array("term" => "\$HTTP_RAW_POST_DATA", "regex" => "/\$HTTP_RAW_POST_DATA/"),
+  )),
+  array("label"=>"7.0->7.1 incomp.", "info"=>"http://php.net/manual/en/migration71.incompatible.php", "check"=>array(
+    array("term" => "dynamic function calls: check for introspect functions", "regex" => "/\$[\$a-zA-Z0-9-_]+[ ]*\(/", "info"=>""),
+    array("term" => "dynamic function call forbidden names", "regex" => "/call_user_func([ ]*|[\t]*)\(('|\")(assert|compact|extract|func_get_args|func_get_arg|func_num_args|get_defined_vars|mb_parse_str|parse_str)/", "info"=>""),
+    array("term" => "trait/class/interface naming issue", "regex" => "/(trait|class|interface) (void|iterable)/"),
+    array("term" => "output changed", "regex" => "/(rand|shuffle|str_shuffle|array_rand)([ ]*|\t*)\(/"),
+    array("term" => "0x7F check if quoted", "regex" => "/0x7F/"),
+    array("term" => "ini directive: session.entropy_file", "regex" => "/session.entropy_file/"),
+    array("term" => "ini directive: session.entropy_length", "regex" => "/session.entropy_length/"),
+    array("term" => "ini directive: session.hash_function", "regex" => "/session.hash_function/"),
+    array("term" => "ini directive: session.hash_bits_per_character", "regex" => "/session.hash_bits_per_character/"),
+    array("term" => "long2ip", "regex" => "/long2ip/"),
+    array("term" => "lexically bound variables cannot reuse names", "regex" => "/([ ]*|\t*)=([ ]*|\t*)function([ ]*|\t*)\(([ ]*|\t*)[\$[a-zA-Z0-9-_]*([ ]*|\t*)\)([ ]*|\t*)use([ ]*|\t*)\(([ ]*|\t*)[\$[a-zA-Z0-9-_]*([ ]*|\t*)\)([ ]*|\t*)\{/"),
+    array("term" => "Changes to parameter semantics", "regex" => "/(mb_ereg|mb_eregi)([ ]*|\t*)\(/"),
+    array("term" => "mcrypt", "regex" => "/mcrypt/"),
+    array("term" => "e pattern modifier deprecated", "regex" => "/(mb_ereg_replace|mb_eregi_replace)([ ]*|\t*)\(/"),
+  )),
+  array("label"=>"7.1->7.2 incomp.", "info"=>"http://php.net/manual/en/migration72.incompatible.php", "check"=>array(
+    array("term" => "get_class null param", "regex" => "/get_class([ ]*|\t*)\((([ ]*|\t*)|null)\)/i"),
+    array("term" => "xmlrpc", "regex" => "/xmlrpc/"),
+    array("term" => "check for non-countable types", "regex" => "/count([ ]*|\t*)\(/"),
+    array("term" => "output changed", "regex" => "/gettype([ ]*|\t*)\(/"),
+    array("term" => "bcmod no longer truncates", "regex" => "/bcmod([ ]*|\t*)\(/"),
+    array("term" => "Hashing functions and non-cryptographic hashes", "regex" => "/(hash_hmac|hash_hmac_file|hash_pbkdf2|hash_init)([ ]*|\t*)\(/"),
+    array("term" => "ini directive: sql.safe_mode", "regex" => "/session.sql.safe_mode/"),
+  ))
+);
+
+// methods
+function getDir( $dir, $exclude = array(), &$results = array() ){
+    // global $exclude;
+    $files = scandir($dir);
+
+    foreach($files as $key => $value){
+        $path = realpath($dir.DIRECTORY_SEPARATOR.$value);
+        if( !is_dir($path) ) {
+            $ext = strtolower( pathinfo($path, PATHINFO_EXTENSION) );
+            if ( $ext === "php" ) {
+              $results[] = $path;
+            }
+        } else if( $value != "." && $value != ".." ) {
+            $foldername = strtolower( pathinfo($path, PATHINFO_FILENAME) );
+            if ( !in_array($foldername, $exclude) ) {
+              getDir($path, $exclude, $results);
+            }
+        }
+    }
+
+    return $results;
+}
+
+// get dir
+$dir = count($argv)>1 ? $argv[1] : '.';
+
+// build list of files to check
+$list = getDir($dir, $exclude);
+
+// go check
+$cnt=0;
+foreach ($checks as $check) {
+  foreach ($list as $path) {
+    $lines = explode("\n", file_get_contents($path) );
+    foreach ($lines as $num => $value) {
+      foreach ($check["check"] as $item) {
+        // if ( strpos(strtolower($value), $item["term"])!==FALSE ) {
+        if ( preg_match_all($item["regex"], $value, $matches) ) {
+          $linenum = $num+1;
+          echo "-----------------------------------------".PHP_EOL.
+              "Found possible {$check["label"]} issue for '{$item["term"]}' in {$path} (line {$linenum})".PHP_EOL.
+              "Info: {$check["info"]}".PHP_EOL;
+          $cnt++;
+        }
+      }
+    }
+  }
+}
+echo "-----------------------------------------".PHP_EOL."Found {$cnt} possible issues".PHP_EOL;
+
+?>
