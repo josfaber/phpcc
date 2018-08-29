@@ -1,5 +1,5 @@
 # phpcc
-PHP 5.6 to 7.2 compatibility checker. Reads all php files recursively and checks for possible compatibility and deprecation issues.
+Commandline PHP 5.6 to 7.2 compatibility checker. Reads all php files recursively and checks for possible compatibility and deprecation issues.
 
 ### Installation:
 
