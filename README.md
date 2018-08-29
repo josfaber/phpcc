@@ -1,14 +1,15 @@
 # phpcc
 PHP 5.6 to 7.2 compatibility checker. Reads all php files recursively and checks for possible compatibility and deprecation issues.
 
-# Installation:
+### Installation:
 
-Put the file in /usr/local/bin and make executable (chmod +x)
+Put the file in `/usr/local/bin` and make executable (chmod +x)
 
-# Usage:
+### Usage:
 
-phpcc {directory}
+`phpcc {directory}`
 
-# Options:
-
+### Options:
+```
 --exclude="{directory name}"
+```
