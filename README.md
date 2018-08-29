@@ -3,11 +3,12 @@ PHP 5.6 to 7.2 compatibility checker. Reads all php files recursively and checks
 
 ### Installation:
 
-Put the file in `/usr/local/bin` and make executable (chmod +x)
+Put the file in `/usr/local/bin` and make executable (`chmod +x /usr/local/bin/phpcc`)
 
 ### Usage:
-
-`phpcc {directory}`
+```
+phpcc {directory}
+```
 
 ### Options:
 ```
